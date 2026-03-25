@@ -1,0 +1,60 @@
+:root {
+    --bg: #f6f1e7;
+    --hole: #3a2f25;
+    --rim: #6b5545;
+    --accent: #d94f04;
+    --text: #1f1a17;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 24px;
+    font-family: Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 16px;
+}
+
+h1 {
+    margin: 0;
+}
+
+#status,
+#score {
+    font-weight: 700;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(5, 120px);
+    gap: 16px;
+}
+
+.hole {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, var(--rim), var(--hole));
+    color: #ffffff;
+}
+
+.key {
+    position: absolute;
+    bottom: 8px;
+    font-size: 14px;
+    opacity: 0.8;
+}
