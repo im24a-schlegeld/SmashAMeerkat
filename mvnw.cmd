@@ -33,7 +33,7 @@
 @SET __MVNW_PSMODULEP_SAVE=%PSModulePath%
 @SET PSModulePath=
 @FOR /F "usebackq tokens=1* delims==" %%A IN (`powershell -noprofile "& {$scriptDir='%~dp0'; $script='%__MVNW_ARG0_NAME__%'; icm -ScriptBlock ([Scriptblock]::Create((Get-Content -Raw '%~f0'))) -NoNewScope}"`) DO @(
-  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
+  IF "%%A"=="MVN_CMD" (set __MVNW_CMD__=%%B) ELSE IF "%%A"=="JAVA_HOME" (set "JAVA_HOME=%%B") ELSE IF "%%A"=="JAVA_PATH_PREFIX" (set "PATH=%%B;%PATH%") ELSE IF "%%B"=="" (echo %%A) ELSE (echo %%A=%%B)
 )
 @SET PSModulePath=%__MVNW_PSMODULEP_SAVE%
 @SET __MVNW_PSMODULEP_SAVE=
@@ -48,6 +48,130 @@
 $ErrorActionPreference = "Stop"
 if ($env:MVNW_VERBOSE -eq "true") {
   $VerbosePreference = "Continue"
+}
+
+$script:SelectedJavaHome = $null
+
+function Get-JavaMajorVersion {
+  param([string]$JavaExecutable)
+
+  if (-not $JavaExecutable -or -not (Test-Path $JavaExecutable)) {
+    return 0
+  }
+
+  try {
+    $versionLine = & cmd.exe /d /c "`"$JavaExecutable`" -version 2>&1" | Select-Object -First 1
+  } catch {
+    return 0
+  }
+
+  if (-not $versionLine) {
+    return 0
+  }
+
+  $rawVersion = $null
+  if ($versionLine -match 'version "([^"]+)"') {
+    $rawVersion = $matches[1]
+  } elseif ($versionLine -match '^\S+\s+([0-9][^\s]*)') {
+    $rawVersion = $matches[1]
+  }
+
+  if (-not $rawVersion) {
+    return 0
+  }
+
+  if ($rawVersion.StartsWith("1.")) {
+    return [int]($rawVersion.Split(".")[1])
+  }
+
+  return [int]($rawVersion.Split(".")[0])
+}
+
+function Get-JavaHomeFromExecutable {
+  param([string]$Executable)
+
+  if (-not $Executable) {
+    return $null
+  }
+
+  try {
+    return Split-Path -Path (Split-Path -Path $Executable -Parent) -Parent
+  } catch {
+    return $null
+  }
+}
+
+function Use-JavaHome {
+  param([string]$JavaHome)
+
+  if (-not $JavaHome) {
+    return $false
+  }
+
+  $javaExe = Join-Path $JavaHome "bin\java.exe"
+  $javacExe = Join-Path $JavaHome "bin\javac.exe"
+
+  if (-not (Test-Path $javaExe) -or -not (Test-Path $javacExe)) {
+    return $false
+  }
+
+  $javaMajor = Get-JavaMajorVersion $javaExe
+  if ($javaMajor -lt 17) {
+    return $false
+  }
+
+  $script:SelectedJavaHome = $JavaHome
+  return $true
+}
+
+function Prefer-SupportedJdk {
+  if ($env:JAVA_HOME) {
+    $javaExe = Join-Path $env:JAVA_HOME "bin\java.exe"
+    if ((Get-JavaMajorVersion $javaExe) -ge 17) {
+      return
+    }
+  }
+
+  $javaCommand = (Get-Command java -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)
+  $javacCommand = (Get-Command javac -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)
+
+  $javaHomeFromJava = Get-JavaHomeFromExecutable $javaCommand
+  $javaHomeFromJavac = Get-JavaHomeFromExecutable $javacCommand
+  $javaMajor = Get-JavaMajorVersion $javaCommand
+  $javacMajor = Get-JavaMajorVersion $javacCommand
+
+  if ($javaHomeFromJavac -and
+      $javacMajor -ge 17 -and
+      ($javaHomeFromJava -ne $javaHomeFromJavac -or $javaMajor -lt 17) -and
+      (Use-JavaHome $javaHomeFromJavac)) {
+    return
+  }
+
+  $candidatePatterns = @(
+    (Join-Path $HOME ".jdks\openjdk-*"),
+    "C:\Program Files\RedHat\java-*",
+    "C:\Program Files\Java\jdk-*",
+    "C:\Program Files\Microsoft\jdk-*",
+    "C:\Program Files\Eclipse Adoptium\jdk-*",
+    "C:\Program Files\Amazon Corretto\jdk*"
+  )
+
+  foreach ($pattern in $candidatePatterns) {
+    Get-ChildItem -Path $pattern -Directory -ErrorAction SilentlyContinue |
+      Sort-Object FullName -Descending |
+      ForEach-Object {
+        if (Use-JavaHome $_.FullName) {
+          return
+        }
+      }
+  }
+}
+
+Prefer-SupportedJdk
+
+if ($script:SelectedJavaHome) {
+  Write-Output "JAVA_HOME=$script:SelectedJavaHome"
+  Write-Output "JAVA_PATH_PREFIX=$(Join-Path $script:SelectedJavaHome 'bin')"
 }
 
 # calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties

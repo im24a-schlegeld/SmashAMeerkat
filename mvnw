@@ -81,7 +81,7 @@ prefer_supported_jdk() {
     return 0
   fi
 
-  for candidate in "/c/Program Files/RedHat"/java-* "/c/Program Files/Java"/jdk-* "/c/Program Files/Microsoft"/jdk-*; do
+  for candidate in "$HOME"/.jdks/openjdk-* "/c/Program Files/RedHat"/java-* "/c/Program Files/Java"/jdk-* "/c/Program Files/Microsoft"/jdk-* "/c/Program Files/Eclipse Adoptium"/jdk-* "/c/Program Files/Amazon Corretto"/jdk*; do
     [ -x "$candidate/bin/java" ] && [ -x "$candidate/bin/javac" ] || continue
     candidate_major="$(java_major_version "$candidate/bin/java" 2>/dev/null || printf '0')"
     if [ "${candidate_major:-0}" -ge 17 ]; then

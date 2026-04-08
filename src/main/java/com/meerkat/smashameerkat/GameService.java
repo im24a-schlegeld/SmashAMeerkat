@@ -7,9 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Keeps the in-memory game state and applies the game rules.
- */
 @Service
 public class GameService {
     // Control how long a spawned target stays visible before the board advances.
