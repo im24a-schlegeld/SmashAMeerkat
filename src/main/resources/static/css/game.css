@@ -1,60 +1,265 @@
 :root {
-    --bg: #f6f1e7;
-    --hole: #3a2f25;
-    --rim: #6b5545;
-    --accent: #d94f04;
-    --text: #1f1a17;
+    --cream: #ffefc6;
+    --sand: #f0bb77;
+    --wood-top: rgba(112, 60, 23, 0.88);
+    --wood-bottom: rgba(68, 31, 10, 0.86);
+    --wood-border: rgba(255, 220, 165, 0.34);
+    --ink: #4e2408;
+    --shadow: rgba(36, 13, 2, 0.28);
 }
 
 * {
     box-sizing: border-box;
 }
 
+html,
 body {
-    margin: 24px;
-    font-family: Georgia, serif;
-    background: var(--bg);
-    color: var(--text);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: "Trebuchet MS", "Avenir Next", "Gill Sans", sans-serif;
+    background: var(--sand);
+    color: var(--cream);
+}
+
+.game-scene {
+    position: relative;
+    width: 100vw;
+    height: 100svh;
+    min-height: 100vh;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(111, 52, 12, 0.12)),
+        url("/images/background_meerkat.jpeg") center center / 100% 100% no-repeat;
+}
+
+.game-scene::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at center, rgba(255, 244, 214, 0) 52%, rgba(62, 24, 5, 0.16) 100%);
+    pointer-events: none;
 }
 
 header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    gap: 16px;
+    position: absolute;
+    top: 9.8%;
+    left: 50%;
+    z-index: 2;
+    width: min(46vw, 720px);
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
 }
 
 h1 {
-    margin: 0;
+    margin: 0 0 clamp(1rem, 1.8vw, 1.55rem);
+    color: #fff4d3;
+    font-family: "Rockwell", "Book Antiqua", Georgia, serif;
+    font-size: clamp(1.7rem, 3vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-shadow:
+        0 0.12em 0 rgba(94, 39, 9, 0.72),
+        0 0.28em 0.9em rgba(0, 0, 0, 0.22);
 }
 
-#status,
+.hud {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 2.2vw, 2rem);
+    padding: 0 clamp(0.9rem, 1.8vw, 1.6rem);
+}
+
+.hud span {
+    display: block;
+    padding: clamp(0.5rem, 0.8vw, 0.75rem) 0.9rem;
+    border: 1px solid var(--wood-border);
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--wood-top), var(--wood-bottom));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 240, 208, 0.24),
+        0 0.45rem 1.1rem rgba(0, 0, 0, 0.14);
+    color: #ffefc9;
+    font-size: clamp(0.9rem, 1.45vw, 1.3rem);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(63, 24, 6, 0.95);
+}
+
+#status {
+    justify-self: start;
+    width: 88%;
+}
+
 #score {
-    font-weight: 700;
+    justify-self: end;
+    width: 88%;
 }
 
 #grid {
-    display: grid;
-    grid-template-columns: repeat(5, 120px);
-    gap: 16px;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
 }
 
 .hole {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 120px;
-    height: 120px;
+    position: absolute;
+    left: var(--hole-x);
+    top: var(--hole-y);
+    width: var(--hole-size);
+    height: calc(var(--hole-size) * 0.58);
+    transform: translate(-50%, -50%);
+    background: transparent;
+}
+
+.hole:nth-child(1) {
+    --hole-x: 12.2%;
+    --hole-y: 72.7%;
+    --hole-size: clamp(9.6rem, 15vw, 14rem);
+}
+
+.hole:nth-child(2) {
+    --hole-x: 30%;
+    --hole-y: 61.8%;
+    --hole-size: clamp(8.4rem, 13vw, 12.2rem);
+}
+
+.hole:nth-child(3) {
+    --hole-x: 50%;
+    --hole-y: 57.9%;
+    --hole-size: clamp(8rem, 12vw, 11rem);
+}
+
+.hole:nth-child(4) {
+    --hole-x: 69.4%;
+    --hole-y: 61.7%;
+    --hole-size: clamp(8.4rem, 13vw, 12.2rem);
+}
+
+.hole:nth-child(5) {
+    --hole-x: 87.5%;
+    --hole-y: 72.8%;
+    --hole-size: clamp(9.6rem, 15vw, 14rem);
+}
+
+.hole::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -10%;
+    width: calc(var(--hole-size) * 0.9);
+    aspect-ratio: 2 / 3;
+    transform: translate(-50%, 24%) scale(0.88);
+    transform-origin: center bottom;
+    opacity: 0;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: contain;
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 0.55rem 0.45rem rgba(61, 23, 4, 0.32));
+    transition:
+        transform 160ms ease-out,
+        opacity 160ms ease-out;
+    pointer-events: none;
+}
+
+.hole[data-state="meerkat"]::before,
+.hole[data-state="impostor"]::before {
+    opacity: 1;
+    transform: translate(-50%, 2%) scale(1);
+}
+
+.hole[data-state="meerkat"]::before {
+    background-image: url("/images/meerkat_good.png");
+}
+
+.hole[data-state="impostor"]::before {
+    background-image: url("/images/meerkat_bad.png");
+    filter:
+        saturate(1.05)
+        drop-shadow(0 0.65rem 0.52rem rgba(31, 6, 2, 0.45));
+}
+
+.hole::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -14%;
+    width: calc(var(--hole-size) * 0.72);
+    height: calc(var(--hole-size) * 0.18);
+    transform: translateX(-50%);
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 35%, var(--rim), var(--hole));
-    color: #ffffff;
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0) 72%);
+    pointer-events: none;
 }
 
 .key {
     position: absolute;
-    bottom: 8px;
-    font-size: 14px;
-    opacity: 0.8;
+    left: 50%;
+    bottom: -1.9rem;
+    min-width: 2.4rem;
+    padding: 0.28rem 0.7rem 0.35rem;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255, 225, 177, 0.35);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(126, 67, 23, 0.94), rgba(69, 30, 10, 0.94));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 243, 219, 0.2),
+        0 0.4rem 0.8rem rgba(0, 0, 0, 0.18);
+    color: #fff2c8;
+    font-size: clamp(0.86rem, 1vw, 1rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-align: center;
+    text-shadow: 0 1px 0 rgba(49, 19, 4, 0.9);
+}
+
+@media (max-width: 900px) {
+    header {
+        top: 8.6%;
+        width: min(60vw, 540px);
+    }
+
+    h1 {
+        font-size: clamp(1.35rem, 4.2vw, 2.2rem);
+        letter-spacing: 0.045em;
+    }
+
+    .hud {
+        gap: 0.7rem;
+        padding: 0 0.45rem;
+    }
+
+    .hud span,
+    #status,
+    #score {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    header {
+        top: 6.8%;
+        width: 74vw;
+    }
+
+    .hud span {
+        padding: 0.48rem 0.65rem;
+        font-size: clamp(0.75rem, 2.7vw, 0.95rem);
+    }
+
+    .key {
+        bottom: -1.35rem;
+        min-width: 2rem;
+        padding: 0.2rem 0.55rem 0.28rem;
+    }
 }

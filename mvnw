@@ -41,6 +41,56 @@ CYGWIN* | MINGW*)
   ;;
 esac
 
+java_major_version() {
+  version="$("$1" -version 2>&1 | awk '
+    NR == 1 {
+      if ($0 ~ /version "/) {
+        split($0, parts, "\"")
+        print parts[2]
+      } else {
+        print $2
+      }
+      exit
+    }')"
+  case "${version-}" in
+    1.*) printf '%s\n' "${version#1.}" | awk -F. '{print $1}' ;;
+    *) printf '%s\n' "$version" | awk -F. '{print $1}' ;;
+  esac
+}
+
+use_java_home() {
+  JAVA_HOME="$1"
+  JAVACMD="$JAVA_HOME/bin/java"
+  JAVACCMD="$JAVA_HOME/bin/javac"
+  export JAVA_HOME
+}
+
+prefer_supported_jdk() {
+  [ -n "${JAVA_HOME-}" ] && return 0
+
+  java_home_from_java="$(CDPATH= cd -- "$(dirname -- "$JAVACMD")/.." 2>/dev/null && pwd -P || printf '')"
+  java_home_from_javac="$(CDPATH= cd -- "$(dirname -- "$JAVACCMD")/.." 2>/dev/null && pwd -P || printf '')"
+  java_major="$(java_major_version "$JAVACMD" 2>/dev/null || printf '0')"
+  javac_major="$(java_major_version "$JAVACCMD" 2>/dev/null || printf '0')"
+
+  if [ -n "$java_home_from_javac" ] &&
+    [ -x "$java_home_from_javac/bin/java" ] &&
+    [ "${javac_major:-0}" -ge 17 ] &&
+    { [ "$java_home_from_java" != "$java_home_from_javac" ] || [ "${java_major:-0}" -lt 17 ]; }; then
+    use_java_home "$java_home_from_javac"
+    return 0
+  fi
+
+  for candidate in "/c/Program Files/RedHat"/java-* "/c/Program Files/Java"/jdk-* "/c/Program Files/Microsoft"/jdk-*; do
+    [ -x "$candidate/bin/java" ] && [ -x "$candidate/bin/javac" ] || continue
+    candidate_major="$(java_major_version "$candidate/bin/java" 2>/dev/null || printf '0')"
+    if [ "${candidate_major:-0}" -ge 17 ]; then
+      use_java_home "$candidate"
+      return 0
+    fi
+  done
+}
+
 # set JAVACMD and JAVACCMD
 set_java_home() {
   # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
@@ -75,6 +125,8 @@ set_java_home() {
       echo "The java/javac command does not exist in PATH nor is JAVA_HOME set, so mvnw cannot run." >&2
       return 1
     fi
+
+    prefer_supported_jdk
   fi
 }
 
@@ -146,6 +198,7 @@ MAVEN_USER_HOME="${MAVEN_USER_HOME:-${HOME}/.m2}"
 MAVEN_HOME="${MAVEN_USER_HOME}/wrapper/dists/${distributionUrlNameMain-}/$(hash_string "$distributionUrl")"
 
 exec_maven() {
+  set_java_home || die "cannot find a suitable Java runtime"
   unset MVNW_VERBOSE MVNW_USERNAME MVNW_PASSWORD MVNW_REPOURL || :
   exec "$MAVEN_HOME/bin/$MVN_CMD" "$@" || die "cannot exec $MAVEN_HOME/bin/$MVN_CMD"
 }
