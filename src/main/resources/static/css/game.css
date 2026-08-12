@@ -134,7 +134,7 @@ h1 {
 #effects {
     position: absolute;
     inset: 0;
-    z-index: 5;
+    z-index: 3;
     overflow: hidden;
     pointer-events: none;
 }
