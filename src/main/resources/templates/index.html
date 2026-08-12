@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Smash-A-Meerkat</title>
-    <link rel="stylesheet" href="/css/game.css?v=2">
-    <script defer src="/js/game.js?v=4"></script>
+    <link rel="stylesheet" href="/css/game.css?v=8">
+    <script defer src="/js/game.js?v=15"></script>
 </head>
 <body>
     <main class="game-scene">
@@ -16,12 +16,22 @@
             </div>
         </header>
 
+        <button id="pause-button" type="button" disabled>Pause</button>
+
         <section id="grid" aria-label="Game board">
             <div class="hole" data-key="A" data-state=""><span class="key">A</span></div>
             <div class="hole" data-key="S" data-state=""><span class="key">S</span></div>
             <div class="hole" data-key="D" data-state=""><span class="key">D</span></div>
             <div class="hole" data-key="J" data-state=""><span class="key">J</span></div>
             <div class="hole" data-key="K" data-state=""><span class="key">K</span></div>
+        </section>
+
+        <div id="effects" aria-hidden="true"></div>
+        <img id="pistol" src="/images/pistol-straight.png" alt="" aria-hidden="true">
+
+        <section id="game-over" aria-label="Game over" hidden>
+            <img src="/images/game-over.png" alt="Game over">
+            <p>Press R to play again</p>
         </section>
     </main>
 </body>

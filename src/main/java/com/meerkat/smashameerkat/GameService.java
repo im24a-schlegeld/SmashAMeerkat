@@ -18,11 +18,13 @@ public class GameService {
     // Map each keyboard key to the target currently shown in that hole.
     private final String[] keys = {"A", "S", "D", "J", "K"};
     private final Map<String, String> holes = new HashMap<>();
+    private String previousSpawnKey;
 
     // Mutable state for the current round.
     private int score = 0;
     private String status = "START";
     private long nextAdvanceAt = Long.MAX_VALUE;
+    private long pausedRemainingMs;
 
     public GameService() {
         clearBoard();
@@ -52,12 +54,35 @@ public class GameService {
         startGame();
     }
 
+    /** Freezes or resumes the current target timer. */
+    public synchronized void togglePause() {
+        if ("RUNNING".equals(status)) {
+            pausedRemainingMs = Math.max(0, nextAdvanceAt - System.currentTimeMillis());
+            status = "PAUSED";
+            nextAdvanceAt = Long.MAX_VALUE;
+        } else if ("PAUSED".equals(status)) {
+            status = "RUNNING";
+            nextAdvanceAt = System.currentTimeMillis() + pausedRemainingMs;
+        }
+    }
+
     // Pick a random hole, decide the target type, and schedule the next board change.
     private void spawnTarget() {
         clearBoard();
 
-        int randomIndex = random.nextInt(keys.length);
-        String selectedKey = keys[randomIndex];
+        String selectedKey;
+        if (previousSpawnKey != null && random.nextDouble() >= 0.01) {
+            // In 99% of spawns, choose evenly from the other four holes.
+            do {
+                selectedKey = keys[random.nextInt(keys.length)];
+            } while (selectedKey.equals(previousSpawnKey));
+        } else if (previousSpawnKey != null) {
+            // Allow an immediate repeat only 1% of the time.
+            selectedKey = previousSpawnKey;
+        } else {
+            selectedKey = keys[random.nextInt(keys.length)];
+        }
+        previousSpawnKey = selectedKey;
 
         boolean impostor = random.nextDouble() < 0.2;
         holes.put(selectedKey, impostor ? "IMPOSTOR" : "MEERKAT");
@@ -119,6 +144,20 @@ public class GameService {
             status = "GAME_OVER";
             nextAdvanceAt = Long.MAX_VALUE;
             clearBoard();
+        }
+    }
+
+    /**
+     * Applies the fixed one-point penalty for deliberately shooting an empty hole.
+     */
+    public synchronized void missKey(String key) {
+        if (!"RUNNING".equals(status) || key == null) {
+            return;
+        }
+
+        String upperKey = key.toUpperCase(Locale.ROOT);
+        if (holes.containsKey(upperKey)) {
+            score = Math.max(0, score - 1);
         }
     }
     

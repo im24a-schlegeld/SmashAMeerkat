@@ -110,6 +110,143 @@ h1 {
     z-index: 2;
 }
 
+#pause-button {
+    position: absolute;
+    top: 3%;
+    right: 3%;
+    z-index: 10;
+    min-width: 7rem;
+    padding: .65rem 1.2rem;
+    border: 1px solid var(--wood-border);
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--wood-top), var(--wood-bottom));
+    box-shadow: inset 0 1px 0 rgba(255, 240, 208, .24), 0 .4rem 1rem rgba(0, 0, 0, .22);
+    color: #ffefc9;
+    font: 800 1rem/1 "Trebuchet MS", sans-serif;
+    cursor: pointer;
+}
+
+#pause-button:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+#effects {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#pistol {
+    position: absolute;
+    left: 50%;
+    bottom: -18%;
+    z-index: 4;
+    width: clamp(11rem, 20vw, 20rem);
+    height: 52%;
+    object-fit: contain;
+    transform: translateX(-50%);
+    transform-origin: 50% 88%;
+    filter: drop-shadow(0 .8rem .8rem rgba(25, 8, 0, .45));
+    pointer-events: none;
+}
+
+#pistol.mirrored,
+.patron.mirrored {
+    transform: translateX(-50%) scaleX(-1);
+}
+
+#pistol.pistol-recoil {
+    animation: pistol-recoil 230ms ease-out;
+}
+
+.patron {
+    position: absolute;
+    /* Patron size: increase these two values to make every flying patron larger. */
+    width: clamp(7rem, 12vw, 13rem);
+    height: 36vh;
+    object-fit: contain;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 .2rem .25rem rgba(0, 0, 0, .5));
+}
+
+.steam-effect {
+    position: absolute;
+    /* Width is set from the struck meerkat's hole size in game.js. */
+    transform: translate(-50%, -100%);
+    animation: steam-burst 700ms ease-out forwards;
+}
+
+.miss-penalty {
+    position: absolute;
+    width: clamp(3.5rem, 6vw, 6.5rem);
+    transform: translate(-50%, -100%);
+    filter: drop-shadow(0 .25rem .3rem rgba(60, 0, 0, .55));
+    animation: miss-penalty 850ms ease-out forwards;
+}
+
+#game-over {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: rgba(20, 4, 0, .36);
+    animation: game-over-in 320ms ease-out;
+}
+
+#game-over[hidden] {
+    display: none;
+}
+
+#game-over img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#game-over p {
+    position: absolute;
+    left: 50%;
+    bottom: 7%;
+    margin: 0;
+    transform: translateX(-50%);
+    padding: .7rem 1.5rem;
+    border-radius: 999px;
+    background: rgba(43, 12, 2, .82);
+    color: #fff0be;
+    font-size: clamp(1rem, 2vw, 1.6rem);
+    font-weight: 900;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
+
+#score.score-pop {
+    animation: score-pop 380ms cubic-bezier(.2, 1.5, .45, 1);
+}
+
+@keyframes pistol-recoil {
+    45% { translate: 0 2.2vh; scale: .96; }
+}
+
+@keyframes steam-burst {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes miss-penalty {
+    0%, 55% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes score-pop {
+    45% { transform: scale(1.22) rotate(-2deg); color: #fff36b; box-shadow: 0 0 1.6rem rgba(255, 205, 40, .75); }
+}
+
+@keyframes game-over-in {
+    from { opacity: 0; scale: 1.08; }
+}
+
 .hole {
     position: absolute;
     left: var(--hole-x);

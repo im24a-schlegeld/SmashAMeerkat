@@ -49,6 +49,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
             gameService.startGame();
         } else if ("RESTART".equalsIgnoreCase(payload)) {
             gameService.restartGame();
+        } else if ("PAUSE".equalsIgnoreCase(payload)) {
+            gameService.togglePause();
+        } else if (payload.toUpperCase().startsWith("MISS:")) {
+            gameService.missKey(payload.substring(5));
         } else {
             gameService.hitKey(payload);
         }
