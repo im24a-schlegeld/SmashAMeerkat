@@ -1,38 +1,46 @@
 # Smash A Meerkat
 
-Smash A Meerkat is a browser-based reaction game inspired by Whac-A-Mole. The server owns the game state and pushes updates to connected browsers over WebSockets.
+Smash A Meerkat ist ein kleines Reaktionsspiel, das als Gruppenprojekt im Java-Unterricht entstanden ist.
 
-## Gameplay
+Auf dem Spielfeld erscheinen Erdmännchen an fünf verschiedenen Positionen. Jede Position ist einer Taste auf der Tastatur zugeordnet.
 
-A target appears in one of five holes mapped to the `A`, `S`, `D`, `J` and `K` keys. Hit a meerkat to increase the score. Hitting an impostor ends the game; deliberately shooting an empty hole removes one point. Targets move after one to two seconds, and a round can be started, paused or restarted.
+![Smash A Meerkat – Spielansicht](docs/images/smash-a-meerkat-game.png)
 
-## Features
+## Spiel
 
-- Server-side game state and scoring
-- WebSocket state updates for connected clients
-- Random target positions without immediate repeats in most rounds
-- Meerkat and impostor targets
-- Start, pause and restart controls
-- Browser UI with game assets and keyboard controls
+Die fünf Positionen werden mit den Tasten `A`, `S`, `D`, `J` und `K` getroffen.
 
-## Architecture
+Ein getroffenes Erdmännchen erhöht den Punktestand.
 
-The browser sends control and key messages over a WebSocket. `GameWebSocketHandler` applies them through the server-side `GameService` and broadcasts the latest board, score and status to every connected client. `GameService` is a Spring singleton, so the current application intentionally exposes one shared game state to all connected clients rather than separate player sessions.
+Neben den normalen Erdmännchen kann auch ein Impostor erscheinen. Wird dieser getroffen, endet das Spiel.
 
-## Tech Stack
+Ein Schuss auf ein leeres Feld zieht einen Punkt ab.
+
+Das Spiel kann gestartet, pausiert und neu gestartet werden.
+
+## Umsetzung
+
+Der Spielzustand wird im Spring-Boot-Backend verwaltet.
+
+Die Eingaben aus dem Browser werden über eine WebSocket-Verbindung an den Server gesendet. Der Server verarbeitet die Eingabe und überträgt danach den aktuellen Spielzustand wieder an die verbundenen Browser.
+
+Aktuell verwenden alle verbundenen Clients denselben Spielzustand. Es gibt keine getrennte Spielrunde pro Spieler.
+
+## Technik
 
 - Java 17
 - Spring Boot
-- Spring MVC and Thymeleaf
+- Spring MVC
+- Thymeleaf
 - Spring WebSocket
 - Jackson
 - Maven
 
-## Running locally
+## Lokal starten
 
-The Maven Wrapper downloads the required Maven version automatically. Java 17 is required.
+Java 17 wird benötigt.
 
-Linux/macOS:
+Linux / macOS:
 
 ```bash
 ./mvnw spring-boot:run
@@ -44,25 +52,14 @@ Windows:
 mvnw.cmd spring-boot:run
 ```
 
-On Git Bash in Windows, `run-app.sh` also stops an existing instance before starting the app:
+Danach:
 
-```bash
-./run-app.sh
+```text
+http://localhost:8080
 ```
 
-Then open http://localhost:8080.
-
-## Testing
+## Tests
 
 ```bash
 ./mvnw test
 ```
-
-The test suite covers application startup and GameService behaviour including score changes, misses, impostors, pause handling and immutable game-state snapshots.
-
-## Project Structure
-
-- `src/main/java/com/meerkat/smashameerkat/` contains the Spring Boot application, game service, controller and WebSocket handler.
-- `src/main/resources/templates/` contains the Thymeleaf page.
-- `src/main/resources/static/` contains JavaScript, CSS and game assets.
-- `src/test/` contains the application context test.
