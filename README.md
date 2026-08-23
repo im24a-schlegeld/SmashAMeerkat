@@ -15,6 +15,10 @@ A target appears in one of five holes mapped to the `A`, `S`, `D`, `J` and `K` k
 - Start, pause and restart controls
 - Browser UI with game assets and keyboard controls
 
+## Architecture
+
+The browser sends control and key messages over a WebSocket. `GameWebSocketHandler` applies them through the server-side `GameService` and broadcasts the latest board, score and status to every connected client. `GameService` is a Spring singleton, so the current application intentionally exposes one shared game state to all connected clients rather than separate player sessions.
+
 ## Tech Stack
 
 - Java 17
@@ -47,6 +51,14 @@ On Git Bash in Windows, `run-app.sh` also stops an existing instance before star
 ```
 
 Then open http://localhost:8080.
+
+## Testing
+
+```bash
+./mvnw test
+```
+
+The test suite covers application startup and GameService behaviour including score changes, misses, impostors, pause handling and immutable game-state snapshots.
 
 ## Project Structure
 
