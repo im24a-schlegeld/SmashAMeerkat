@@ -2,27 +2,19 @@
 
 Smash A Meerkat ist ein kleines Reaktionsspiel, das als Gruppenprojekt im Java-Unterricht entstanden ist.
 
-Auf dem Spielfeld erscheinen Erdmännchen an fünf verschiedenen Positionen. Jede Position ist einer Taste auf der Tastatur zugeordnet.
+Auf dem Spielfeld erscheinen Erdmännchen an fünf verschiedenen Positionen. Die Positionen sind den Tasten `A`, `S`, `D`, `J` und `K` zugeordnet.
 
-![Smash A Meerkat – Spielansicht](docs/images/smash-a-meerkat-game.png)
+Ein getroffenes Erdmännchen erhöht den Punktestand. Wird ein Impostor getroffen, endet die Runde. Ein Schuss auf ein leeres Feld zieht einen Punkt ab.
 
-## Spiel
-
-Die fünf Positionen werden mit den Tasten `A`, `S`, `D`, `J` und `K` getroffen.
-
-Ein getroffenes Erdmännchen erhöht den Punktestand.
-
-Neben den normalen Erdmännchen kann auch ein Impostor erscheinen. Wird dieser getroffen, endet das Spiel.
-
-Ein Schuss auf ein leeres Feld zieht einen Punkt ab.
-
-Das Spiel kann gestartet, pausiert und neu gestartet werden.
+<p align="center">
+  <img src="docs/images/smash-a-meerkat-game.png" alt="Smash A Meerkat – laufendes Spiel" width="900">
+</p>
 
 ## Umsetzung
 
 Der Spielzustand wird im Spring-Boot-Backend verwaltet.
 
-Die Eingaben aus dem Browser werden über eine WebSocket-Verbindung an den Server gesendet. Der Server verarbeitet die Eingabe und überträgt danach den aktuellen Spielzustand wieder an die verbundenen Browser.
+Die Eingaben aus dem Browser werden über eine WebSocket-Verbindung an den Server gesendet. Der Server verarbeitet die Eingaben und sendet den aktuellen Spielzustand wieder an die verbundenen Browser.
 
 Aktuell verwenden alle verbundenen Clients denselben Spielzustand. Es gibt keine getrennte Spielrunde pro Spieler.
 
